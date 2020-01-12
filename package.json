@@ -1,8 +1,11 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "State managament for react application. inspired by redux.",
   "main": "index.js",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.js --mode development"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jtomasevic/micro-reducers.git"
@@ -21,30 +24,35 @@
     "url": "https://github.com/jtomasevic/micro-reducers/issues"
   },
   "homepage": "https://github.com/jtomasevic/micro-reducers#readme",
-  "peerDependencies": {
-    "core-js": "^3.1.4",
-    "react": "^16.8.3",
-    "history": "^4.9.0",
-    "prop-types": "^15.7.2",
+  "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-flow": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
+    "css-loader": "^2.1.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.13.0",
+    "file-loader": "^5.0.2",
+    "flow-bin": "^0.104.0",
+    "style-loader": "^0.23.1",
     "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.4.1"
   },
   "dependencies": {
     "core-js": "^3.1.4",
     "history": "^4.9.0",
     "prop-types": "^15.7.2",
-    "react": "^16.8.6"
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
+    "react-svg-loader": "^3.0.3",
+    "regenerator-runtime": "^0.13.2"
   }
 }
