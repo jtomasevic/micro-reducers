@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "State managament for react application. inspired by redux.",
   "main": "index.js",
   "scripts": {
@@ -25,10 +25,10 @@
   },
   "homepage": "https://github.com/jtomasevic/micro-reducers#readme",
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^5.16.0",
+    "react": "^16.8.6"
   },
   "dependencies": {
-    "core-js": "^3.1.4",
-    "react": "^16.8.6"
+    
   }
 }
