@@ -3,6 +3,12 @@ Micro reducers is library inspired by Redux, especially with concept of `actions
 
 In Redux reducers are usually implemented as function receiving state and action, and returning new state. This is tipically done using switch/case when we merege action result with new state. 
 
+###!!!!!!!!
+- CURRENTLY HAVING ISSUE WITH BUILDING BUT ALL WORKING EXAMPLES WITH WORKING APPS YOU CAN FIND HERE
+- SO npm install don't work now, you can take file (for now) from repository bellow (file in folder lib)
+- PROMISS TO FIX npm install today
+###!!!!!!!!!
+
 Go here to learn from example:
 https://github.com/jtomasevic/evax/edit/master/README.md
 
