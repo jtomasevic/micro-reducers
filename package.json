@@ -23,5 +23,13 @@
   "bugs": {
     "url": "https://github.com/jtomasevic/micro-reducers/issues"
   },
-  "homepage": "https://github.com/jtomasevic/micro-reducers#readme"
+  "homepage": "https://github.com/jtomasevic/micro-reducers#readme",
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  },
+  "dependencies": {
+    "core-js": "^3.1.4",
+    "history": "^4.9.0",
+    "react": "^16.8.6"
+  }
 }
