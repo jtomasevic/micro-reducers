@@ -1,5 +1,5 @@
 {
-  "name": "mini-reducers",
+  "name": "micro-reducers",
   "version": "0.0.1",
   "description": "State managament for react application. inspired by redux.",
   "main": "index.js",
