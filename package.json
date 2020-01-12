@@ -1,14 +1,20 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.11",
+  "version": "0.0.15",
   "description": "State managament for react application. inspired by redux.",
-  "main": "./dist/index.js",
-  "scripts": {
-    "prepublish": "babel src --out-dir lib"
-  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jtomasevic/micro-reducers.git"
+  },
+  "scripts": {
+    "build": "babel src/ -d lib && flow-copy-source src lib",
+    "prepack": "npm run prepack:babel && npm run prepack:flow",
+    "prepack:babel": "babel src/ -d lib",
+    "prepack:flow": "flow-copy-source src lib"
   },
   "keywords": [
     "react",
@@ -25,20 +31,17 @@
   },
   "homepage": "https://github.com/jtomasevic/micro-reducers#readme",
   "devDependencies": {
+    "@babel/cli": "^7.8.0",
     "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-flow-strip-types": "^7.8.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-flow": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
-    "@babel/plugin-transform-flow-strip-types": "^7.8.0",
+    "flow-bin": "^0.115.0",
+    "flow-copy-source": "^2.0.9"
   },
   "dependencies": {
     "core-js": "^3.1.4",
-    "history": "^4.9.0",
-    "prop-types": "^15.7.2",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-router-dom": "^5.0.0",
-    "react-svg-loader": "^3.0.3",
-    "regenerator-runtime": "^0.13.2"
+    "react": "^16.8.6"
   }
 }
