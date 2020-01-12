@@ -73,6 +73,7 @@ export const HelloWorld = () => {
         </div>
     );
 };
+```
 - Bind reducer actions to UI
 ```javascript
 import React from 'react';
