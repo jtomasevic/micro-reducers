@@ -1,0 +1,27 @@
+{
+  "name": "mini-reducers",
+  "version": "0.0.1",
+  "description": "State managament for react application. inspired by redux.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtomasevic/micro-reducers.git"
+  },
+  "keywords": [
+    "react",
+    "reducer",
+    "react-hook",
+    "action-ui-binding",
+    "reducer-action-binding",
+    "alternative-redux"
+  ],
+  "author": "Alehijan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jtomasevic/micro-reducers/issues"
+  },
+  "homepage": "https://github.com/jtomasevic/micro-reducers#readme"
+}
