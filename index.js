@@ -1,6 +1,5 @@
 // @flow
 import { useState } from 'react';
-import { isObject } from 'util';
 
 export type ActionResult = { type: string } | void;
 export type dispatchType = (actionResult: ActionResult) => void;
@@ -12,6 +11,8 @@ export type useActionType = (action: Action) => any;
 
 export type useStoreType = () => [any, (Action) => any];
 export type attatchToActionType = (actionName: string, callBack: (store: any, action: ActionResult) => any) => number;
+
+const isObject = (obj) => obj === Object(obj);
 
 export class Store {
     stores: Object;
