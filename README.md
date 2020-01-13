@@ -321,7 +321,6 @@ I need to write more about this but here is one example to ilustrate. We have on
 
 ```javascript
     const onRemoveFromBasket = (store, actionResult) => {
-        actionResult.book.inBasket = false;
         const basketBooks: Array<Book> = store.books ? store.books : [];
         for (let i = basketBooks.length - 1; i >= 0; i--) {
             if (basketBooks[i].id === actionResult.book.id) {
