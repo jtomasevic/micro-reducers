@@ -1,5 +1,5 @@
 Go here to learn from example:
-https://github.com/jtomasevic/evax/edit/master/README.md
+https://github.com/jtomasevic/evax
 
 # Micro reducers
 
@@ -342,4 +342,4 @@ I need to write more about this but here is one example to ilustrate. We have on
 ```
 
 Go here to learn from example:
-https://github.com/jtomasevic/evax/edit/master/README.md
+https://github.com/jtomasevic/evax
