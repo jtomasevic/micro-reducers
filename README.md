@@ -1,10 +1,69 @@
-# Micro reducers
-Micro reducers is library inspired by Redux, especially with concept of `actions` and `action creators`. The main difference is in reducer implementation. 
-
-In Redux reducers are usually implemented as function receiving state and action, and returning new state. This is tipically done using switch/case when we merege action result with new state. 
-
 Go here to learn from example:
 https://github.com/jtomasevic/evax/edit/master/README.md
+
+# Micro reducers
+
+Micro reducers is library inspired by Redux, inherit from Flux, philosophy, especially with concepts of `actions` and `action creators`. 
+
+## Why Micro ?
+
+Comparison. How Redux works.
+
+> 1. In Redux reducers receive current state and result of action (json). 
+> 
+> 2. Reducer create new state 'merging' current state with action result 
+> 3. This is typically done using switch/case when we merge action result with new state. 
+> 4. Redux framework check all reducers to find first appropriate action result, (which may cause performance issues).
+
+#### Reducing reducers
+
+In micro reducers we eliminate flow above whenever (3) is only 'merging states'
+
+#### Why ?
+
+In many cases, especially when actions are carefully designed considering store structure, reducer just do simple merging, nothing else. 
+So what we do:
+
+> 1. Assume that in most of the cases (or whenever it's possible) new state is just simple result of merging current state with new one. 
+> 
+> 2. **WRITE reducer only** when necessary.
+> 3. **CALL reducer directly**. We are using here event listener pattern, so no wasting time to look for correct reducer. ```It's direct method call```
+
+**NOTE: We could say this framework is appropriate for 'action driven models'.**
+
+## What Else ?
+
+### Action Bindings (new)!
+
+- Yeap, we can bind action/action creator arguments to UI. 
+
+> We call bind method during component initialization and as **result** we receive method without arguments.
+
+Then we can simply use this method on UI without complication with passing arguments, or calling popular dispatch method.
+
+This could be **new approach in defining UI**. It's not perfect, but, it's very **'declarative'**, therefore easier to understand, write and maintain.
+
+Little example (from react function component type):
+```javascript
+    const login = bindActionProps(UserSignIn,
+        'user.email',
+        'user.password');
+```
+and latter: 
+```html
+<input type='text' id='user.email' />
+<input type='text' id='user.password' />
+<a href='#' onClick={login} >Login</a>
+```
+to put all together, when link 'Login' is pressed this action will be called:
+```javascript
+function (email, password, dispatch) {
+    someApiCall.then((user) => {
+        dispatch(userSignedIn(user));
+    });
+};
+```
+but with binding, we can simplify this to zero-argument method, ```and do not care about dispatch function``` in UI layer.
 
 ### Quick Intro
 - Hello World
