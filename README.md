@@ -311,7 +311,5 @@ const SignUp = () => {
 
 export default SignUp;
 ```
-
-
 Go here to learn from example:
 https://github.com/jtomasevic/evax/edit/master/README.md

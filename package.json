@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "State managament for react application. inspired by redux.",
   "files": [
     "lib"
