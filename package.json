@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "State managament for react application. inspired by redux.",
   "files": [
     "lib"
@@ -17,12 +17,16 @@
     "prepack:flow": "flow-copy-source src lib"
   },
   "keywords": [
-    "react",
+    "redux",
     "reducer",
+    "reducers",
+    "react",
     "react-hook",
     "action-ui-binding",
+    "action-binding",
+    "reducer-binding",
     "reducer-action-binding",
-    "alternative-redux"
+    "redux-alternative"
   ],
   "author": "Alehijan",
   "license": "MIT",
