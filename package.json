@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.0.23",
+  "version": "0.0.28",
   "description": "State managament for react application. inspired by redux.",
   "files": [
     "lib"
@@ -26,7 +26,14 @@
     "action-binding",
     "reducer-binding",
     "reducer-action-binding",
-    "redux-alternative"
+    "redux-action-binding",
+    "redux-alternative",
+    "micro-redux",
+    "micro-reducer",
+    "reducer-action",
+    "redux-action",
+    "action-creator",
+    "reducer-action-creator"
   ],
   "author": "Alehijan",
   "license": "MIT",
