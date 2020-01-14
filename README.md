@@ -65,6 +65,13 @@ function (email, password, dispatch) {
 ```
 but with binding, we can simplify this to zero-argument method, ```and do not care about dispatch function``` in UI layer.
 
+## Why else MICRO ?
+
+Because you can use createStore function for different part of application. 
+
+ * It means for different part of application createStore could be used multiple times in absolute isolation. 
+ * Isolation level is also aplied to actions, and action creators. 
+
 ### Quick Intro
 - Hello World
 ```javascript
