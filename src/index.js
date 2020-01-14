@@ -10,7 +10,7 @@ export type AtionType = Action | AsyncAction;
 export type useActionType = (action: Action) => any;
 
 export type useStoreType = () => [any, (Action) => any];
-export type attatchToActionType = (actionName: string, callBack: (store: any, action: ActionResult) => any) => number;
+export type attatchToActionType = (actionName: string, callBack: (store: any, action: ActionResult) => any) => void;
 
 /**
  * If obj is 'just' object, simply if it's json return true. If it's function, return false.
