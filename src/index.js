@@ -12,8 +12,18 @@ export type useActionType = (action: Action) => any;
 export type useStoreType = () => [any, (Action) => any];
 export type attatchToActionType = (actionName: string, callBack: (store: any, action: ActionResult) => any) => number;
 
+/**
+ * If obj is 'just' object, simply if it's json return true. If it's function, return false.
+ * @param {any} obj json object, function, whatever
+ */
 const isObject = (obj) => obj === Object(obj);
 
+/**
+ * Probably better name will be 'super store' because it's content is set of individual stores.
+ * Each of these stores have own objects, state, etc.
+ * It's possible to use multiple 'individual stores' inside one UI component.
+ * Also, in complex applications we can have multiple 'super stores'. See more about it in description for createStore function.
+ */
 export class Store {
     stores: Object;
 
