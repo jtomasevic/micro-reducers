@@ -94,6 +94,13 @@ export class Store {
     }
 }
 
+/**
+ * Create 'super' store (set of individual stores) which is part of function scope. 
+ * It means for different part of application createStore could be used multiple times in absolute isolation. 
+ * Isolation level is also aplied to actions, and action creators. 
+ * @param  {...any} stores functions that returns objects. Each of then describing signle store instance.
+ * If first parameters is array this means we are using store inside class component.
+ */
 export const createStore = (...stores: Function) => {
     const globalStore = new Store();
     const registretedStores = [];
