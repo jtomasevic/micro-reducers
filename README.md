@@ -58,7 +58,7 @@ and latter:
 to put all together, when link 'Login' is pressed this action will be called:
 ```javascript
 function (email, password, dispatch) {
-    someApiCall.then((user) => {
+    someApiCall(email, password).then((user) => {
         dispatch(userSignedIn(user));
     });
 };
@@ -72,8 +72,15 @@ Because you can use createStore function for different part of application.
  * It means for different part of application createStore could be used multiple times in absolute isolation. 
  * Isolation level is also aplied to actions, and action creators. 
 
-### Quick Intro
-- Hello World
+## Quick Intro
+
+### Examples on code sandbox
+
+- [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
+
+### Hello World
+
+- Hello World examples
 ```javascript
 import React from 'react';
 import { createStore } from 'mini-reducers';
@@ -140,7 +147,10 @@ export const HelloWorld = () => {
     );
 };
 ```
-- Bind reducer actions to UI
+
+### Bind action to UI
+
+- Bind reducer actions to UI (sync)
 ```javascript
 import React from 'react';
 import { createStore, bindActionProps } from 'micro-reducers';
