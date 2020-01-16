@@ -1,6 +1,8 @@
 Go here to learn from example:
 https://github.com/jtomasevic/evax
 
+#### Very quick intro: [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
+
 # Micro reducers
 
 Micro reducers is library inspired by Redux, inherit from Flux, philosophy, especially with concepts of `actions` and `action creators`. 
@@ -357,6 +359,8 @@ I need to write more about this but here is one example to ilustrate. We have on
     useReducer('removeFromBasket', onRemoveFromBasket);
     useReducer('removeFromBasket', onRemoveFromBasketAdjustPrice);
 ```
+> ### By the way auto add/remove from array object is in experimental phase
+> ### and will be available soon, so you'll not need reducers above
 
 Go here to learn from example:
 https://github.com/jtomasevic/evax
