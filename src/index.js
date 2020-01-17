@@ -12,9 +12,6 @@
 import { useState } from 'react';
 import { getUUID } from './utils';
 
-console.log('getUUID', getUUID);
-export const testfn = () => getUUID();
-
 export type ActionResult = { type: string } | void;
 export type dispatchType = (actionResult: ActionResult) => void;
 
@@ -96,10 +93,8 @@ export class Store {
                         this.stores[storeFn.name][actionResult.toArray.name].push(actionResult.toArray.obj);
                     } else if (actionResult.fromArray) {
                         const toRemove = actionResult.fromArray.obj;
-                        console.log(toRemove);
                         const arr = this.stores[storeFn.name][actionResult.fromArray.name];
                         for (let i = 0; i < arr.length; i++) {
-                            console.log(toRemove._key, arr[i]._key);
                             if (toRemove._key === arr[i]._key) {
                                 arr.splice(i, 1);
                                 break;

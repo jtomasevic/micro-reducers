@@ -105,7 +105,6 @@ export const HelloWorld = () => {
         // call action directly, no wrapping etc.
         GetMesssage('somebody');
     }
-    console.log('render', store);
     return (
         <div>
             {store.message}
