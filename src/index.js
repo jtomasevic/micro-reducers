@@ -1,6 +1,7 @@
+// @flow
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
-// @flow
+
 /**
  * I'm very aware that this code needs serious refactoring, and I promisse I'll do my best.
  * considering my dailly job, family, etc...
@@ -78,12 +79,8 @@ export class Store {
                 setState = setReactState;
             } else {
                 setState = (newState) => {
-                    // console.log('>>> classState', classState);
-                    // console.log('>>> old value', store);
-                    // console.log('>>> new state', newState);
                     classState[storeFn.name] = newState;
                     cmpSetState.call(component, classState);
-                    // console.log('>>> set state called', classState, storeFn.name);
                 };
             }
 
@@ -162,6 +159,16 @@ type bindingProp = [
     (element: HTMLElement) => any
 ];
 
+/**
+ * Bind UI elements to action. It can be simple bindings providing just html element id or more complicated
+ * when you need to send mehod to transform value in wanted value. For example convert to int.
+ * @param {Actio} action action which arguments we want to bind to UI elements
+ * @param  {...any} bindings binding configuration. 
+ * - If parameter is just string then argument is bind to 'value' argument of HTML element where id is
+ * provided parameter.
+ * - If parameter is array, first param is HTML element id, and second mehod that is triggered when value
+ * attribute is changed
+ */
 export const bindActionProps = (action: Action, ...bindings: bindingProp) => () => {
     const params = [];
     bindings.forEach((binding: bindingProp) => {
@@ -175,4 +182,24 @@ export const bindActionProps = (action: Action, ...bindings: bindingProp) => () 
         params.push(value);
     });
     action(...params);
+};
+
+export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function) => {
+    const newAdd = (...params: any) => {
+        let result = add(...params);
+        const arrayMember = paramsToObj(...params);
+        result.toArray = { name: arrayName, obj: arrayMember};
+        return result;
+    }
+    return newAdd;
+};
+
+export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Function) => {
+    const newRemove = (...params: any) => {
+        let result = remove(...params);
+        const arrayMember = paramsToObj(...params);
+        result.fromArray = { name: arrayName, obj: arrayMember};
+        return result;
+    }
+    return newRemove;
 };

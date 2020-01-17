@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.1.4",
+  "version": "0.1.53",
   "description": "State managament for react application. inspired by redux.",
   "files": [
     "lib"
@@ -12,7 +12,6 @@
   },
   "scripts": {
     "build": "babel src/ -d lib && flow-copy-source src lib",
-    "build:w": "webpack --mode production",
     "prepack": "npm run prepack:babel && npm run prepack:flow",
     "prepack:babel": "babel src/ -d lib",
     "prepack:flow": "flow-copy-source src lib"

@@ -1,7 +1,9 @@
 Go here to learn from example:
 https://github.com/jtomasevic/evax
 
-#### Very quick intro: [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
+#### Very quick intro: 
+- [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
+- [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
 
 # Micro reducers
 
@@ -26,7 +28,7 @@ In micro reducers we eliminate flow above whenever (3) is only 'merging states'
 In many cases, especially when actions are carefully designed considering store structure, reducer just do simple merging, nothing else. 
 So what we do:
 
-> 1. Assume that in most of the cases (or whenever it's possible) new state is just simple result of merging current state with new one. 
+> 1. Assume that in most of the cases (or whenever it's possible) new state is just simple result of merging current state with new one.
 > 
 > 2. **WRITE reducer only** when necessary.
 > 3. **CALL reducer directly**. We are using here event listener pattern, so no wasting time to look for correct reducer. ```It's direct method call```
@@ -330,13 +332,79 @@ const SignUp = () => {
 
 export default SignUp;
 ```
+### Make your arrays auto add/remove without reducers (new from 1.5)
+Use utility methods
+- forArrPush
+- forArrRemove
+
+to bind actions to add/remove operation under arrays, to avoid adding reducers.
+
+>Here is sandbox:
+[Very simple Todo app without reducers](https://codesandbox.io/s/zen-resonance-tjqjx)
+
+and portion of code
+```javascript
+import React from 'react';
+import { bindActionProps, forArrPush, forArrRemove } from 'micro-reducers';
+import { useTodoList } from './store';
+import { addTask, completeTask } from './actions';
+
+const Task = ({ task, onComplete }) => (
+    <li>
+        {task.name}
+        <br/>
+        <button onClick={(e) => { e.stopPropagation(); onComplete(task); }}> Complete </button>
+    </li>
+);
+const TodoList = () => {
+    // here we bind input action params to function which create object for array 
+    const addParamsToObj = (taskName) => ({ name: taskName });
+    // here we bind input params to function which return object to be removed from array
+    const removeParamsToObj = (task) => (task);
+    const [store, AddTask, CompleteTask] = useTodoList(
+        // now we wrap our actions
+        // as first parameter we need to say which colllection we are maintaining.
+        // second parameter is action, and last params to object functions
+        forArrPush('tasks', addTask, addParamsToObj),
+        forArrRemove('tasks', completeTask, removeParamsToObj)
+    );
+    const tasks = store.tasks.map((task) => <Task key={task._key} task={task} onComplete={CompleteTask} />);
+    const add = bindActionProps(AddTask, 'task.name');
+    const onAdd = (e) => {
+        e.stopPropagation();
+        add();
+        document.getElementById('task.name').value = '';
+    };
+    return (
+        <>
+            <div>
+                    Task list
+                <ul>
+                    {tasks}
+                </ul>
+            </div>
+            <div>
+                <input type='text' id='task.name' />
+            </div>
+            <div>
+                <button onClick={onAdd}>Add</button>
+            </div>
+        </>
+    );
+};
+```
+
 ## Finally Reducers.
 
 When we need reducer we write function for specific action.
 
 Also we can split code in several functions (reducers), and include/exclude features as we test/want/etc...
 
-I need to write more about this but here is one example to ilustrate. We have online book store, and we can add and remove from our shoping bag. As we have array of books and total price in state, we need reducers. Apologies for not very well explained example, but I'll work more on this in following days.
+I need to write more about this but here is one example to ilustrate. We have online book store, and we can add and remove from our shoping bag. 
+> Let's say we are not using feature explained in chapter above
+> Make your arrays auto add/remove without reducers (new from 1.5) 
+
+As we have array of books and total price in state, we need reducers. Apologies for not very well explained example, but I'll work more on this in following days.
 
 ```javascript
     const onRemoveFromBasket = (store, actionResult) => {
@@ -359,8 +427,5 @@ I need to write more about this but here is one example to ilustrate. We have on
     useReducer('removeFromBasket', onRemoveFromBasket);
     useReducer('removeFromBasket', onRemoveFromBasketAdjustPrice);
 ```
-> ### By the way auto add/remove from array object is in experimental phase
-> ### and will be available soon, so you'll not need reducers above
-
 Go here to learn from example:
 https://github.com/jtomasevic/evax
