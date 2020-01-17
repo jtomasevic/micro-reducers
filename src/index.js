@@ -1,5 +1,18 @@
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
 // @flow
+/**
+ * I'm very aware that this code needs serious refactoring, and I promisse I'll do my best.
+ * considering my dailly job, family, etc...
+ * I know there are some non-sense lines, and code organization,
+ * and I would highly appreciate any suggestion, proposal, collaboration, etc...
+ */
+
 import { useState } from 'react';
+import { getUUID } from './utils';
+
+console.log('getUUID', getUUID);
+export const testfn = () => getUUID();
 
 export type ActionResult = { type: string } | void;
 export type dispatchType = (actionResult: ActionResult) => void;
@@ -81,6 +94,21 @@ export class Store {
                         this.attachers[actionResult.type].forEach(callback => {
                             store = callback(store, actionResult, this.stores);
                         });
+                    } else if (actionResult.toArray) {
+                        actionResult.toArray.obj._key = getUUID();
+                        this.stores[storeFn.name][actionResult.toArray.name].push(actionResult.toArray.obj);
+                    } else if (actionResult.fromArray) {
+                        const toRemove = actionResult.fromArray.obj;
+                        console.log(toRemove);
+                        const arr = this.stores[storeFn.name][actionResult.fromArray.name];
+                        for (let i = 0; i < arr.length; i++) {
+                            console.log(toRemove._key, arr[i]._key);
+                            if (toRemove._key === arr[i]._key) {
+                                arr.splice(i, 1);
+                                break;
+                            }
+                        }
+                        this.stores[storeFn.name][actionResult.fromArray.name] = arr;
                     } else {
                         store = { ...store, ...actionResult };
                     }
@@ -105,9 +133,9 @@ export class Store {
 }
 
 /**
- * Create 'super' store (set of individual stores) which is part of function scope. 
- * It means for different part of application createStore could be used multiple times in absolute isolation. 
- * Isolation level is also aplied to actions, and action creators. 
+ * Create 'super' store (set of individual stores) which is part of function scope.
+ * It means for different part of application createStore could be used multiple times in absolute isolation.
+ * Isolation level is also aplied to actions, and action creators.
  * @param  {...any} stores functions that returns objects. Each of them describing signle store instance.
  * If first parameters is array this means we are using store inside class component.
  */
