@@ -1,10 +1,18 @@
-Go here to learn from example:
-https://github.com/jtomasevic/evax
+Go here to learn from example: https://github.com/jtomasevic/evax
+
+#### Last update:
+> Maintain operation under store's array memeber:
+> - add 
+> - remove and
+> - update array member
+
+*without reducers* 
+[Last todo example](https://codesandbox.io/s/nifty-nash-ul2jp)
 
 #### Very quick intro: 
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
 - [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
-
+- [Last todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
 # Micro reducers
 
 Micro reducers is library inspired by Redux, inherit from Flux, philosophy, especially with concepts of `actions` and `action creators`. 

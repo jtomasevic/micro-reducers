@@ -101,7 +101,20 @@ export class Store {
                             }
                         }
                         this.stores[storeFn.name][actionResult.fromArray.name] = arr;
-                    } else {
+                    } else if (actionResult.updataArray) {
+                        const toUpdate = actionResult.updataArray.obj;
+                        console.log('will try to update array with', toUpdate );
+
+                        const arr = this.stores[storeFn.name][actionResult.updataArray.name];
+                        for (let i = 0; i < arr.length; i++) {
+                            if (toUpdate._key === arr[i]._key) {
+                                arr[i] = toUpdate;
+                                console.log('update array memeber', toUpdate );
+                                break;
+                            }
+                        }
+                    } 
+                    else {
                         store = { ...store, ...actionResult };
                     }
                     this.stores[storeFn.name] = { ...store };
@@ -198,3 +211,13 @@ export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Fun
     }
     return newRemove;
 };
+
+export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
+    const newUpdate = (...params: any) => {
+        let result = updateObj(...params);
+        const arrayMember = paramsToObj(...params);
+        result.updataArray = { name: arrayName, obj: arrayMember};
+        return result;
+    }
+    return newUpdate;
+}
