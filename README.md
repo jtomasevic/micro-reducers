@@ -1,15 +1,15 @@
 Learn from example: https://github.com/jtomasevic/evax
 
-#### Last update:
-> Maintain operation under store's array memeber:
+#### [Last update todo example update:]((https://codesandbox.io/s/nifty-nash-ul2jp))
+> Maintain operation under store's array member:
 > - add 
-> - remove and
+> - remove 
 > - update array member
 > - filter by status (!)
-All operation without classic reducer, but in more declarative way. This example also ilustrate binding action params to UI.
 
-*without reducers* 
-[Last todo example](https://codesandbox.io/s/nifty-nash-ul2jp)
+**All operation without classic reducer, but in more declarative way. This example also ilustrate binding action params to UI.**
+
+[click to see code example in sandbox](https://codesandbox.io/s/nifty-nash-ul2jp)
 
 #### Very quick intro: 
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
