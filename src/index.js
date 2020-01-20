@@ -40,9 +40,12 @@ export class Store {
 
     attachers: Object;
 
+    filters: Object;
+
     constructor() {
         this.stores = {};
         this.attachers = {};
+        this.filters = {};
     }
 
     attachTo(actionType: string, callBack: (store: any, action: ActionResult) => any): attatchToActionType {
@@ -83,6 +86,30 @@ export class Store {
 
             const dispatch = (actionResult: ActionResult) => {
                 store = Object.assign(store);
+                console.log('*** **** store after assign:', store);
+                const setFilteredArray = (name: string, arr: Array) => {
+                    if(!store[`${name}WithFilter`]) {
+                        console.error('***** creating new filter array for:', this.stores[storeFn.name], name);
+                        store[`${name}WithFilter`] = [ ...arr];
+                    }
+                    console.log('*** setFilteredArray', name,  arr);
+                    console.log('*** store name', `${name}WithFilter`);
+                    store[`${name}WithFilter`] = [...arr];
+                    console.log('*** store after update:', store[`${name}WithFilter`]);
+                }
+                const checkFilter = (arrayName: string) => {
+                    if(this.filters[`${storeFn.name}.${arrayName}`]) {
+                        const filter = this.filters[`${storeFn.name}.${arrayName}`];
+                        console.log('******* try to add data to filter array with param:', filter.param);
+                        const result = filter.filterFunction(store[arrayName], filter.param);
+                        console.log('*** ********** filtered data:', result);
+                        setFilteredArray(arrayName, result);
+                    }
+                }
+                const resetFilter = (arrayName: string) => {
+                    this.filters[`${storeFn.name}.${arrayName}`] = null;
+                    store[`${arrayName}WithFilter`] = null
+                }
                 if (isObject(actionResult)) {
                     if (this.attachers[actionResult.type]) {
                         this.attachers[actionResult.type].forEach(callback => {
@@ -90,31 +117,55 @@ export class Store {
                         });
                     } else if (actionResult.toArray) {
                         actionResult.toArray.obj._key = getUUID();
-                        this.stores[storeFn.name][actionResult.toArray.name].push(actionResult.toArray.obj);
+                        store[actionResult.toArray.name].push(actionResult.toArray.obj);
+                        checkFilter(actionResult.toArray.name);
                     } else if (actionResult.fromArray) {
                         const toRemove = actionResult.fromArray.obj;
-                        const arr = this.stores[storeFn.name][actionResult.fromArray.name];
+                        let arr = store[actionResult.fromArray.name];
                         for (let i = 0; i < arr.length; i++) {
                             if (toRemove._key === arr[i]._key) {
                                 arr.splice(i, 1);
                                 break;
                             }
                         }
-                        this.stores[storeFn.name][actionResult.fromArray.name] = arr;
-                    } else if (actionResult.updataArray) {
-                        const toUpdate = actionResult.updataArray.obj;
-                        console.log('will try to update array with', toUpdate );
-
-                        const arr = this.stores[storeFn.name][actionResult.updataArray.name];
+                        store[actionResult.fromArray.name] = arr;
+                        checkFilter(actionResult.fromArray.name);
+                    } else if (actionResult.updateArray) {
+                        const toUpdate = actionResult.updateArray.obj;
+                        console.log('*** will try to update array with', toUpdate );
+                        let arr = store[actionResult.updateArray.name];
                         for (let i = 0; i < arr.length; i++) {
                             if (toUpdate._key === arr[i]._key) {
                                 arr[i] = toUpdate;
-                                console.log('update array memeber', toUpdate );
+                                console.log('*** update array memeber', toUpdate );
                                 break;
                             }
                         }
-                    } 
-                    else {
+                        checkFilter(actionResult.updateArray.name);
+
+                    } else if (actionResult._____filter) {
+                        console.log('*** start filtering', actionResult);
+                        console.log('*** actionresult.type', actionResult.type);
+
+                        // if there is a property filter
+                        // it means this action should filter exisiting store property
+                        // in this case, of course this property is an array, 
+                        // and property name is action.filter.name added in forFilterArray utility function.
+                        // here we'll refer only as arr to such store property
+                        const originalArray = store[actionResult._____filter.name];
+                        console.log('*** original data to filter:', originalArray);
+                        // on of the filter properies, such as name, is also filterFunction
+                        // we need to execute filterFunction to get result and tu put this results somewhere.
+                        const result = actionResult._____filter.filterFunction(originalArray, actionResult);
+                        console.log('*** filtered data:', result);
+                        setFilteredArray(actionResult._____filter.name, result);
+                        this.filters[`${storeFn.name}.${actionResult._____filter.name}`] = {
+                            param: { ...actionResult },
+                            filterFunction:actionResult._____filter.filterFunction
+                        };
+                    } else if (actionResult.type === '!cancelFilter') {
+                        resetFilter(actionResult.collectionName);
+                    } else {
                         store = { ...store, ...actionResult };
                     }
                     this.stores[storeFn.name] = { ...store };
@@ -205,7 +256,9 @@ export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function
 export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Function) => {
     const newRemove = (...params: any) => {
         let result = remove(...params);
+        // execute original action, get json result
         const arrayMember = paramsToObj(...params);
+        // attach to original meessage additional attributes.
         result.fromArray = { name: arrayName, obj: arrayMember};
         return result;
     }
@@ -215,9 +268,23 @@ export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Fun
 export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
     const newUpdate = (...params: any) => {
         let result = updateObj(...params);
+        // execute original action, get json result
         const arrayMember = paramsToObj(...params);
-        result.updataArray = { name: arrayName, obj: arrayMember};
+        // attach to original meessage additional attributes.
+        result.updateArray = { name: arrayName, obj: arrayMember};
         return result;
     }
     return newUpdate;
+}
+
+export const forFilterArray = (arrayName: string, filterAction: Action, filterFunction: Function) => {
+    const newFilter = (...params: any) => {
+        // execute original action, get json result
+        let result = filterAction(...params);
+        // attach to original meessage additional attributes.
+        result._____filter = { name: arrayName, filter: result, filterFunction: filterFunction};
+        console.log('*** !!! calling filter method');
+        return result;
+    }
+    return newFilter;
 }
