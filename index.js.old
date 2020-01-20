@@ -55,7 +55,7 @@ export class Store {
                 setState = setReactState;
             } else {
                 setState = (newState) => {
-                    // console.log('>>> classState', classState);
+                    // ('>>> classState', classState);
                     // console.log('>>> old value', store);
                     // console.log('>>> new state', newState);
                     classState[storeFn.name] = newState;

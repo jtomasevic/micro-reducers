@@ -86,23 +86,16 @@ export class Store {
 
             const dispatch = (actionResult: ActionResult) => {
                 store = Object.assign(store);
-                console.log('*** **** store after assign:', store);
                 const setFilteredArray = (name: string, arr: Array) => {
                     if(!store[`${name}WithFilter`]) {
-                        console.error('***** creating new filter array for:', this.stores[storeFn.name], name);
                         store[`${name}WithFilter`] = [ ...arr];
                     }
-                    console.log('*** setFilteredArray', name,  arr);
-                    console.log('*** store name', `${name}WithFilter`);
                     store[`${name}WithFilter`] = [...arr];
-                    console.log('*** store after update:', store[`${name}WithFilter`]);
                 }
                 const checkFilter = (arrayName: string) => {
                     if(this.filters[`${storeFn.name}.${arrayName}`]) {
                         const filter = this.filters[`${storeFn.name}.${arrayName}`];
-                        console.log('******* try to add data to filter array with param:', filter.param);
                         const result = filter.filterFunction(store[arrayName], filter.param);
-                        console.log('*** ********** filtered data:', result);
                         setFilteredArray(arrayName, result);
                     }
                 }
@@ -132,20 +125,16 @@ export class Store {
                         checkFilter(actionResult.fromArray.name);
                     } else if (actionResult.updateArray) {
                         const toUpdate = actionResult.updateArray.obj;
-                        console.log('*** will try to update array with', toUpdate );
                         let arr = store[actionResult.updateArray.name];
                         for (let i = 0; i < arr.length; i++) {
                             if (toUpdate._key === arr[i]._key) {
                                 arr[i] = toUpdate;
-                                console.log('*** update array memeber', toUpdate );
                                 break;
                             }
                         }
                         checkFilter(actionResult.updateArray.name);
 
                     } else if (actionResult._____filter) {
-                        console.log('*** start filtering', actionResult);
-                        console.log('*** actionresult.type', actionResult.type);
 
                         // if there is a property filter
                         // it means this action should filter exisiting store property
@@ -153,11 +142,9 @@ export class Store {
                         // and property name is action.filter.name added in forFilterArray utility function.
                         // here we'll refer only as arr to such store property
                         const originalArray = store[actionResult._____filter.name];
-                        console.log('*** original data to filter:', originalArray);
                         // on of the filter properies, such as name, is also filterFunction
                         // we need to execute filterFunction to get result and tu put this results somewhere.
                         const result = actionResult._____filter.filterFunction(originalArray, actionResult);
-                        console.log('*** filtered data:', result);
                         setFilteredArray(actionResult._____filter.name, result);
                         this.filters[`${storeFn.name}.${actionResult._____filter.name}`] = {
                             param: { ...actionResult },
@@ -283,7 +270,6 @@ export const forFilterArray = (arrayName: string, filterAction: Action, filterFu
         let result = filterAction(...params);
         // attach to original meessage additional attributes.
         result._____filter = { name: arrayName, filter: result, filterFunction: filterFunction};
-        console.log('*** !!! calling filter method');
         return result;
     }
     return newFilter;

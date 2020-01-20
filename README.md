@@ -5,6 +5,8 @@ Learn from example: https://github.com/jtomasevic/evax
 > - add 
 > - remove and
 > - update array member
+> - filter by status (!)
+All operation without classic reducer, but in more declarative way. This example also ilustrate binding action params to UI.
 
 *without reducers* 
 [Last todo example](https://codesandbox.io/s/nifty-nash-ul2jp)
