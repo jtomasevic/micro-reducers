@@ -11,10 +11,10 @@
 > 
 > [same example with **ALL ASYNC** operation](https://codesandbox.io/s/angry-mestorf-kk8q1)
 
-#### Very quick intro: 
+#### Very simple examples: 
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
 - [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
-- [Last todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
+- [Todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
 
 Here you can  find more examples: https://github.com/jtomasevic/evax
 
@@ -92,8 +92,11 @@ Because you can use createStore function for different part of application.
 ## Quick Intro
 
 ### Examples on code sandbox
-
+- [Todo with add, remove and filter](https://codesandbox.io/s/nifty-nash-ul2jp)
+- [Todo with add, remove and filter with **ALL ASYNC** operation](https://codesandbox.io/s/angry-mestorf-kk8q1)
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
+- [Very simple Todo app without reducers](https://codesandbox.io/s/zen-resonance-tjqjx)
+- [Very simple Todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
 
 ### Hello World
 
