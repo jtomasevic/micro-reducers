@@ -1,6 +1,6 @@
 {
   "name": "micro-reducers",
-  "version": "0.1.71",
+  "version": "0.1.73",
   "description": "State managament for react application. inspired by redux.",
   "files": [
     "lib"
@@ -20,6 +20,7 @@
     "redux",
     "reducer",
     "reducers",
+    "react-state-management",
     "react",
     "react-hook",
     "react-reducer",
@@ -44,7 +45,9 @@
     "array-reducers",
     "compact-reducer",
     "action-first",
-    "action-driven"
+    "action-driven",
+    "flux-alternative",
+    "state-management"
   ],
   "author": "Alehijan",
   "license": "MIT",

@@ -85,6 +85,7 @@ export class Store {
             }
 
             const dispatch = (actionResult: ActionResult) => {
+                console.log('*** dispatching action result', actionResult);
                 store = Object.assign(store);
                 const setFilteredArray = (name: string, arr: Array) => {
                     if(!store[`${name}WithFilter`]) {
@@ -240,6 +241,45 @@ export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function
     return newAdd;
 };
 
+const wrapToAsync = (arrayName: string, operation: Action, paramsToObj: Function, attachParamName: string) => {
+    const newOperation = (...params: any) => {
+        let dispatch = params[params.length-1];
+        console.log('*** old dispatch', dispatch);
+        const arrayMember = paramsToObj(...params);
+        const newDispatch = (actionResult: ActionResult) => {    
+            console.log('*** call new dispatch');
+            actionResult[attachParamName] = { name: arrayName, obj: arrayMember };
+            console.log('*** result to dispatch', actionResult );
+            dispatch(actionResult);
+        }
+        params.splice(params.length-1, 1);
+        params.push(newDispatch);
+        console.log('*** filnal params', params);
+        operation(...params);
+    }
+    return newOperation;
+}
+
+export const forArrPushAsync = (arrayName: string, add: Action, paramsToObj: Function) => {
+    return wrapToAsync(arrayName, add, paramsToObj, 'toArray');
+    // const newAdd = (...params: any) => {
+    //     let dispatch = params[params.length-1];
+    //     console.log('*** old dispatch', dispatch);
+    //     const arrayMember = paramsToObj(...params);
+    //     const newDispatch = (actionResult: ActionResult) => {    
+    //         console.log('*** call new dispatch');
+    //         actionResult.toArray = { name: arrayName, obj: arrayMember };
+    //         console.log('*** result to dispatch', actionResult );
+    //         dispatch(actionResult);
+    //     }
+    //     params.splice(params.length-1, 1);
+    //     params.push(newDispatch);
+    //     console.log('*** filnal params', params);
+    //     add(...params);
+    // }
+    // return newAdd;
+}
+
 export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Function) => {
     const newRemove = (...params: any) => {
         let result = remove(...params);
@@ -250,6 +290,10 @@ export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Fun
         return result;
     }
     return newRemove;
+};
+
+export const forArrRemoveAsync = (arrayName: string, remove: Action, paramsToObj: Function) => {
+    return wrapToAsync(arrayName, remove, paramsToObj, 'fromArray');
 };
 
 export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
@@ -264,6 +308,10 @@ export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj
     return newUpdate;
 }
 
+export const forUpdateArrayAsync = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
+    return wrapToAsync(arrayName, updateObj, paramsToObj, 'updateArray');
+}
+
 export const forFilterArray = (arrayName: string, filterAction: Action, filterFunction: Function) => {
     const newFilter = (...params: any) => {
         // execute original action, get json result
@@ -273,4 +321,23 @@ export const forFilterArray = (arrayName: string, filterAction: Action, filterFu
         return result;
     }
     return newFilter;
+}
+
+export const forFilterArrayAsync = (arrayName: string, filterAction: Action, filterFunction: Function) => {
+    const newOperation = (...params: any) => {
+        let dispatch = params[params.length-1];
+        console.log('*** old dispatch', dispatch);
+        
+        const newDispatch = (actionResult: ActionResult) => {    
+            console.log('*** filter call new dispatch', actionResult);
+            actionResult._____filter = { name: arrayName, filter: {...actionResult}, filterFunction: filterFunction};
+            console.log('*** result to dispatch', actionResult );
+            dispatch(actionResult);
+        }
+        params.splice(params.length-1, 1);
+        params.push(newDispatch);
+        console.log('*** filnal params', params);
+        filterAction(...params);
+    }
+    return newOperation;
 }

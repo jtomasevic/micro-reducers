@@ -1,23 +1,26 @@
-Learn from example: https://github.com/jtomasevic/evax
+> - Library inspired by Redux (inherit from Flux) philosophy.
+> - Trying to **automate state management** whenever it's possible.
+> - Reduce reducers with **write only when needed** aproach.
+> - Introduce **binding action parameters to UI concept**.
 
-#### [Last update todo example update:]((https://codesandbox.io/s/nifty-nash-ul2jp))
-> Maintain operation under store's array member:
-> - add 
-> - remove 
-> - update array member
-> - filter by status (!)
-
-**All operation without classic reducer, but in more declarative way. This example also ilustrate binding action params to UI.**
-
-[click to see code example in sandbox](https://codesandbox.io/s/nifty-nash-ul2jp)
+#### ['Todo list' example (last version - with async operations)](https://codesandbox.io/s/angry-mestorf-kk8q1)
+> - Add, emove, update tasks, filter by status
+> - All operation **without classic reducer, but in more declarative way**. This example also ilustrate **binding action params to UI.**
+> 
+> [click to see code example in sandbox](https://codesandbox.io/s/nifty-nash-ul2jp)
+> 
+> [same example with **ALL ASYNC** operation](https://codesandbox.io/s/angry-mestorf-kk8q1)
 
 #### Very quick intro: 
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
 - [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
 - [Last todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
+
+Here you can  find more examples: https://github.com/jtomasevic/evax
+
 # Micro reducers
 
-Micro reducers is library inspired by Redux, inherit from Flux, philosophy, especially with concepts of `actions` and `action creators`. 
+Micro reducers is state management library (currently only for React) inspired by Redux, inherit from Flux, philosophy, especially with concepts of `actions` and `action creators`. 
 
 ## Why Micro ?
 
