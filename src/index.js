@@ -63,21 +63,30 @@ export class Store {
         const useStore = (customConfig?: Array, ...actions: Function): any => {
             let setState: (state: any) => void = null;
             let store = this.stores[storeFn.name];
-            let state = this.stores[storeFn.name];
+            // =let state = this.stores[storeFn.name];
+            // these three are used if store is used from class component. 
             let component = null;
             let cmpSetState = null;
             let classState = null;
+            // if first memeber is array it's configuration for class components.
+            // for now it's just array with one member, pointer to component itself.
             if (Array.isArray(customConfig)) {
+                // as expalained above first element is component (react class component)
                 component = customConfig[0];
+                // ... which always has setState function
                 cmpSetState = customConfig[0].setState;
+                // ... and must have defined state property
                 classState = customConfig[0].state;
             }
             if (!Array.isArray(customConfig)) {
+                // if first element it's not an array then this is part where we
+                // handle functional components.
                 actions = [customConfig, ...actions];
-                const [stateConst, setReactState] = useState(this.stores[storeFn.name]);
-                state = stateConst;
+                const [stateConst, setReactState] = useState(store);
+                store = stateConst;
                 setState = setReactState;
             } else {
+                // this is only for class component.
                 setState = (newState) => {
                     classState[storeFn.name] = newState;
                     cmpSetState.call(component, classState);
@@ -170,7 +179,7 @@ export class Store {
                 return dispatch(action(...params));
             };
             const wrappedActions = actions ? actions.map(action => useAction(action)) : [];
-            return Array.isArray(customConfig) ? [...wrappedActions] : [state, ...wrappedActions];
+            return Array.isArray(customConfig) ? [...wrappedActions] : [store, ...wrappedActions];
         };
         return useStore;
     }
