@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 // @flow
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
@@ -36,18 +37,46 @@ const isObject = (obj) => obj === Object(obj);
      * Also, in complex applications we can have multiple 'super stores'. See more about it in description for createStore function.
  */
 export class Store {
+    /**
+     * parts of store this is an dictionary but I still didn't do full refactoring
+     */
     stores: Object;
 
+    /**
+     * again dictionary, key is name of action, and value is function.
+     * again need more refactoring.
+     */
     attachers: Object;
 
+    /**
+     * Here we keep filters configuration. It's a dictionary.
+     * @key name of array in store
+     * @value filter configuration with filter function
+     */
     filters: Object;
 
     constructor() {
         this.stores = {};
         this.attachers = {};
         this.filters = {};
+        this.addToCollection = this.addToCollection.bind(this);
+        this.attachTo = this.attachTo.bind(this);
+        this.setFilteredArray = this.setFilteredArray.bind(this);
+        this.checkFilter = this.checkFilter.bind(this);
+        this.resetFilter = this.resetFilter.bind(this);
+        this.addToCollection = this.addToCollection.bind(this);
+        this.removeFromCollection = this.removeFromCollection.bind(this);
+        this.setFilter = this.setFilter.bind(this);
+        this.updateCollectionMember = this.updateCollectionMember.bind(this);
+        this.handleCollectionOperation = this.handleCollectionOperation.bind(this);
     }
 
+    /**
+     * This is replacement for reducers. Not to use directly but with 'useReducer' utility function.
+     * @param {string} actionType type of action to subcribe
+     * @param {Function} callBack callBack function to be called when action is happened.
+     * This is starting point to replace traditional reducers
+     */
     attachTo(actionType: string, callBack: (store: any, action: ActionResult) => any): attatchToActionType {
         if (!this.attachers[actionType]) {
             this.attachers[actionType] = [];
@@ -55,6 +84,129 @@ export class Store {
         this.attachers[actionType].push(callBack);
     }
 
+    /**
+     * This method check set filter on array (member of store)
+     * @param {any} store part of global store
+     * @param {string} storeName name of store
+     * @param {ActionResult} actionResult result
+     */
+    setFilter(store: any, storeName, actionResult: ActionResult) {
+        // if there is a property filter
+        // it means this action should filter exisiting store member.
+        // in this case, of course this member is an array,
+        // and member name is action.filter.name added in forFilterArray utility function.
+        // here we'll refer only as arr to such store property
+        const originalArray = store[actionResult._____filter.name];
+        console.log('original array', originalArray);
+        // on of the filter properies, such as name, is also filterFunction
+        // we need to execute filterFunction to get result and tu put this results somewhere.
+        const result = actionResult._____filter.filterFunction(originalArray, actionResult);
+        console.log('result array', result);
+        this.setFilteredArray(store, actionResult._____filter.name, result);
+        this.filters[`${storeName}.${actionResult._____filter.name}`] = {
+            param: { ...actionResult },
+            filterFunction: actionResult._____filter.filterFunction
+        };
+    }
+
+    /**
+     * If not exist, create new array with name by convention:
+     * {arrayNam}WithArray, and then just set value.
+     * @param {string} name name of array in store
+     * @param {Array} arr filtered array
+     */
+    setFilteredArray(store: any, name: string, arr: Array) {
+        if (!store[`${name}WithFilter`]) {
+            store[`${name}WithFilter`] = [...arr];
+            console.log('setFilteredArray', arr);
+        }
+        store[`${name}WithFilter`] = [...arr];
+    }
+
+    /**
+     * check if filter exist. If exist then get filter for this array,
+     * call filter function and set state.
+     * @param {string} arrayName name of array in store
+     */
+    checkFilter(store: any, storeName: string, arrayName: string) {
+        if (this.filters[`${storeName}.${arrayName}`]) {
+            const filter = this.filters[`${storeName}.${arrayName}`];
+            const result = filter.filterFunction(store[arrayName], filter.param);
+            console.log('check filter result, ', result);
+            console.log('check filter: store[arrayName]', store[arrayName]);
+            this.setFilteredArray(store, arrayName, result);
+        } else {
+            console.log('storeName ', store, storeName, arrayName, `${storeName}.${arrayName}`);
+        }
+    }
+
+    /**
+     * Remove filter, deleting filter array
+     * @param {string} arrayName name of array in store
+     */
+    resetFilter(store: any, storeName, arrayName: string) {
+        this.filters[`${storeName}.${arrayName}`] = null;
+        store[`${arrayName}WithFilter`] = null;
+    }
+
+    /**
+     * Add new memeber to collection which is part of store, for example tasks.
+     */
+    addToCollection(store, actionResult) {
+        actionResult.toArray.obj._key = getUUID();
+        store[actionResult.toArray.name].push(actionResult.toArray.obj);
+    }
+
+    /**
+     * Remove member from collection (array)
+     * @param {any} store part of global store
+     * @param {ActionResult} actionResul
+     */
+    removeFromCollection(store, actionResult) {
+        const toRemove = actionResult.fromArray.obj;
+        const arr = store[actionResult.fromArray.name];
+        for (let i = 0; i < arr.length; i++) {
+            if (toRemove._key === arr[i]._key) {
+                arr.splice(i, 1);
+                break;
+            }
+        }
+        store[actionResult.fromArray.name] = arr;
+    }
+
+    updateCollectionMember(store: any, actionResult: ActionResult) {
+        const toUpdate = actionResult.updateArray.obj;
+        const arr = store[actionResult.updateArray.name];
+        for (let i = 0; i < arr.length; i++) {
+            if (toUpdate._key === arr[i]._key) {
+                arr[i] = toUpdate;
+                break;
+            }
+        }
+    }
+
+    handleCollectionOperation(store, storeName, actionResult) {
+        if (actionResult.toArray) {
+            this.addToCollection(store, actionResult);
+            this.checkFilter(store, storeName, actionResult.toArray.name);
+        } else if (actionResult.fromArray) {
+            this.removeFromCollection(store, actionResult);
+            this.checkFilter(store, storeName, actionResult.fromArray.name);
+        } else if (actionResult.updateArray) {
+            this.updateCollectionMember(store, actionResult);
+            this.checkFilter(store, storeName, actionResult.updateArray.name);
+        } else if (actionResult._____filter) {
+            this.setFilter(store, storeName, actionResult);
+        } else if (actionResult.type === '!cancelFilter') {
+            this.resetFilter(store, storeName, actionResult.collectionName);
+        }
+    }
+
+    /**
+     * Register new piece of store
+     * @param {Function} storeFn Function that return initial state.
+     * @returns {Function} Return useStore utility function
+     */
     register(storeFn: () => Object): () => any {
         this.stores[storeFn.name] = storeFn();
         if (!this.stores[storeFn.name]) {
@@ -64,7 +216,7 @@ export class Store {
             let setState: (state: any) => void = null;
             let store = this.stores[storeFn.name];
             // =let state = this.stores[storeFn.name];
-            // these three are used if store is used from class component. 
+            // these three are used if store is used from class component.
             let component = null;
             let cmpSetState = null;
             let classState = null;
@@ -81,7 +233,9 @@ export class Store {
             if (!Array.isArray(customConfig)) {
                 // if first element it's not an array then this is part where we
                 // handle functional components.
+                // first join first element (which is Action, not config)
                 actions = [customConfig, ...actions];
+                // use react hook to handle state
                 const [stateConst, setReactState] = useState(store);
                 store = stateConst;
                 setState = setReactState;
@@ -94,75 +248,26 @@ export class Store {
             }
 
             const dispatch = (actionResult: ActionResult) => {
-                console.log('*** dispatching action result', actionResult);
                 store = Object.assign(store);
-                const setFilteredArray = (name: string, arr: Array) => {
-                    if(!store[`${name}WithFilter`]) {
-                        store[`${name}WithFilter`] = [ ...arr];
-                    }
-                    store[`${name}WithFilter`] = [...arr];
-                }
-                const checkFilter = (arrayName: string) => {
-                    if(this.filters[`${storeFn.name}.${arrayName}`]) {
-                        const filter = this.filters[`${storeFn.name}.${arrayName}`];
-                        const result = filter.filterFunction(store[arrayName], filter.param);
-                        setFilteredArray(arrayName, result);
-                    }
-                }
-                const resetFilter = (arrayName: string) => {
-                    this.filters[`${storeFn.name}.${arrayName}`] = null;
-                    store[`${arrayName}WithFilter`] = null
-                }
+                // check if result is object (json)
+                // why ? because if it's async function it will first return undefined or nul
+                // and latter will dispatch action
                 if (isObject(actionResult)) {
-                    if (this.attachers[actionResult.type]) {
+                    // first check if we are dealing with array and auto commands.
+                    // latter we can apply additional operation with attachers/reducers
+                    if (actionResult.toArray || actionResult.fromArray
+                        || actionResult.updateArray || actionResult._____filter
+                        || actionResult.type === '!cancelFilter') {
+                        this.handleCollectionOperation(store, storeFn.name, actionResult);
+                    } else if (this.attachers[actionResult.type]) { // here we check attachers (or reducers)
+                    // it is important in which order attachers change state.
+                    // here is FIFO implementation.
                         this.attachers[actionResult.type].forEach(callback => {
                             store = callback(store, actionResult, this.stores);
                         });
-                    } else if (actionResult.toArray) {
-                        actionResult.toArray.obj._key = getUUID();
-                        store[actionResult.toArray.name].push(actionResult.toArray.obj);
-                        checkFilter(actionResult.toArray.name);
-                    } else if (actionResult.fromArray) {
-                        const toRemove = actionResult.fromArray.obj;
-                        let arr = store[actionResult.fromArray.name];
-                        for (let i = 0; i < arr.length; i++) {
-                            if (toRemove._key === arr[i]._key) {
-                                arr.splice(i, 1);
-                                break;
-                            }
-                        }
-                        store[actionResult.fromArray.name] = arr;
-                        checkFilter(actionResult.fromArray.name);
-                    } else if (actionResult.updateArray) {
-                        const toUpdate = actionResult.updateArray.obj;
-                        let arr = store[actionResult.updateArray.name];
-                        for (let i = 0; i < arr.length; i++) {
-                            if (toUpdate._key === arr[i]._key) {
-                                arr[i] = toUpdate;
-                                break;
-                            }
-                        }
-                        checkFilter(actionResult.updateArray.name);
-
-                    } else if (actionResult._____filter) {
-
-                        // if there is a property filter
-                        // it means this action should filter exisiting store property
-                        // in this case, of course this property is an array, 
-                        // and property name is action.filter.name added in forFilterArray utility function.
-                        // here we'll refer only as arr to such store property
-                        const originalArray = store[actionResult._____filter.name];
-                        // on of the filter properies, such as name, is also filterFunction
-                        // we need to execute filterFunction to get result and tu put this results somewhere.
-                        const result = actionResult._____filter.filterFunction(originalArray, actionResult);
-                        setFilteredArray(actionResult._____filter.name, result);
-                        this.filters[`${storeFn.name}.${actionResult._____filter.name}`] = {
-                            param: { ...actionResult },
-                            filterFunction:actionResult._____filter.filterFunction
-                        };
-                    } else if (actionResult.type === '!cancelFilter') {
-                        resetFilter(actionResult.collectionName);
                     } else {
+                        // if it's not array, it's not filter, there is not attachers - reducers
+                        // then just merge store.
                         store = { ...store, ...actionResult };
                     }
                     this.stores[storeFn.name] = { ...store };
@@ -219,7 +324,7 @@ type bindingProp = [
  * Bind UI elements to action. It can be simple bindings providing just html element id or more complicated
  * when you need to send mehod to transform value in wanted value. For example convert to int.
  * @param {Actio} action action which arguments we want to bind to UI elements
- * @param  {...any} bindings binding configuration. 
+ * @param  {...any} bindings binding configuration.
  * - If parameter is just string then argument is bind to 'value' argument of HTML element where id is
  * provided parameter.
  * - If parameter is array, first param is HTML element id, and second mehod that is triggered when value
@@ -242,111 +347,90 @@ export const bindActionProps = (action: Action, ...bindings: bindingProp) => () 
 
 export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function) => {
     const newAdd = (...params: any) => {
-        let result = add(...params);
+        const result = add(...params);
         const arrayMember = paramsToObj(...params);
-        result.toArray = { name: arrayName, obj: arrayMember};
+        result.toArray = { name: arrayName, obj: arrayMember };
         return result;
-    }
+    };
     return newAdd;
 };
 
+/**
+ * This means: let my param:operation action become push operation under array
+ * which is part of store with name param:arrayName
+ * Second attribute is function that transforme action parameters into object.
+ * Last param is operation type which can be:
+ * - toArray
+ * - fromArray
+ * - updateArray
+ */
 const wrapToAsync = (arrayName: string, operation: Action, paramsToObj: Function, attachParamName: string) => {
     const newOperation = (...params: any) => {
-        let dispatch = params[params.length-1];
-        console.log('*** old dispatch', dispatch);
+        const dispatch = params[params.length - 1];
         const arrayMember = paramsToObj(...params);
-        const newDispatch = (actionResult: ActionResult) => {    
-            console.log('*** call new dispatch');
+        const newDispatch = (actionResult: ActionResult) => {
             actionResult[attachParamName] = { name: arrayName, obj: arrayMember };
-            console.log('*** result to dispatch', actionResult );
             dispatch(actionResult);
-        }
-        params.splice(params.length-1, 1);
+        };
+        params.splice(params.length - 1, 1);
         params.push(newDispatch);
-        console.log('*** filnal params', params);
         operation(...params);
-    }
+    };
     return newOperation;
-}
+};
 
-export const forArrPushAsync = (arrayName: string, add: Action, paramsToObj: Function) => {
-    return wrapToAsync(arrayName, add, paramsToObj, 'toArray');
-    // const newAdd = (...params: any) => {
-    //     let dispatch = params[params.length-1];
-    //     console.log('*** old dispatch', dispatch);
-    //     const arrayMember = paramsToObj(...params);
-    //     const newDispatch = (actionResult: ActionResult) => {    
-    //         console.log('*** call new dispatch');
-    //         actionResult.toArray = { name: arrayName, obj: arrayMember };
-    //         console.log('*** result to dispatch', actionResult );
-    //         dispatch(actionResult);
-    //     }
-    //     params.splice(params.length-1, 1);
-    //     params.push(newDispatch);
-    //     console.log('*** filnal params', params);
-    //     add(...params);
-    // }
-    // return newAdd;
-}
+export const forArrPushAsync = (arrayName: string, add: Action, paramsToObj: Function) => wrapToAsync(arrayName, add, paramsToObj, 'toArray');
 
 export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Function) => {
     const newRemove = (...params: any) => {
-        let result = remove(...params);
+        const result = remove(...params);
         // execute original action, get json result
         const arrayMember = paramsToObj(...params);
         // attach to original meessage additional attributes.
-        result.fromArray = { name: arrayName, obj: arrayMember};
+        result.fromArray = { name: arrayName, obj: arrayMember };
         return result;
-    }
+    };
     return newRemove;
 };
 
-export const forArrRemoveAsync = (arrayName: string, remove: Action, paramsToObj: Function) => {
-    return wrapToAsync(arrayName, remove, paramsToObj, 'fromArray');
-};
+export const forArrRemoveAsync = (arrayName: string, remove: Action, paramsToObj: Function) => wrapToAsync(arrayName, remove, paramsToObj, 'fromArray');
 
 export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
     const newUpdate = (...params: any) => {
-        let result = updateObj(...params);
+        const result = updateObj(...params);
         // execute original action, get json result
         const arrayMember = paramsToObj(...params);
         // attach to original meessage additional attributes.
-        result.updateArray = { name: arrayName, obj: arrayMember};
+        result.updateArray = { name: arrayName, obj: arrayMember };
         return result;
-    }
+    };
     return newUpdate;
-}
+};
 
-export const forUpdateArrayAsync = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
-    return wrapToAsync(arrayName, updateObj, paramsToObj, 'updateArray');
-}
+export const forUpdateArrayAsync = (arrayName: string, updateObj: Action, paramsToObj: Function) => wrapToAsync(arrayName, updateObj, paramsToObj, 'updateArray');
 
 export const forFilterArray = (arrayName: string, filterAction: Action, filterFunction: Function) => {
     const newFilter = (...params: any) => {
         // execute original action, get json result
-        let result = filterAction(...params);
+        const result = filterAction(...params);
         // attach to original meessage additional attributes.
-        result._____filter = { name: arrayName, filter: result, filterFunction: filterFunction};
+        result._____filter = { name: arrayName, filter: result, filterFunction };
         return result;
-    }
+    };
     return newFilter;
-}
+};
 
 export const forFilterArrayAsync = (arrayName: string, filterAction: Action, filterFunction: Function) => {
     const newOperation = (...params: any) => {
-        let dispatch = params[params.length-1];
-        console.log('*** old dispatch', dispatch);
-        
-        const newDispatch = (actionResult: ActionResult) => {    
-            console.log('*** filter call new dispatch', actionResult);
-            actionResult._____filter = { name: arrayName, filter: {...actionResult}, filterFunction: filterFunction};
-            console.log('*** result to dispatch', actionResult );
+        const dispatch = params[params.length - 1];
+
+        const newDispatch = (actionResult: ActionResult) => {
+            actionResult._____filter = { name: arrayName, filter: { ...actionResult }, filterFunction };
             dispatch(actionResult);
-        }
-        params.splice(params.length-1, 1);
+        };
+        params.splice(params.length - 1, 1);
         params.push(newDispatch);
-        console.log('*** filnal params', params);
         filterAction(...params);
-    }
+    };
     return newOperation;
-}
+};
