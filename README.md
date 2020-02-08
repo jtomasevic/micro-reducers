@@ -561,7 +561,7 @@ const TodoList = () => {
 export default TodoList;
 ```
 ## notifications
-We could look on notificatins like data pushed from server. For example you are working on your task list but your boss too, and when he add new task you should see it. Usually to achiefe this we are using websockets. We are not explaining how data will be pushed, but how will UI be notified in standard way.
+We could look on notificatins like data pushed from server. For example you are working on your task list. Your boss decide to add some extra tasks, and when he add new task you should see it. Usually to achiefe this we are using websockets usually. We are not explaining how data will be pushed to clinent, but how will UI be notified in standard way.
 
 Look at the code snipet bellow:
 ```javascript

@@ -12,9 +12,7 @@
 
 import { useState } from 'react';
 import { getUUID } from './utils';
-import { useNotification, sendNotification } from './notifications';
 
-export { useNotification, sendNotification };
 export type ActionResult = { type: string } | void;
 export type dispatchType = (actionResult: ActionResult) => void;
 
@@ -444,3 +442,22 @@ export const forFilterArrayAsync = (arrayName: string, filterAction: Action, fil
     return newOperation;
 };
 
+const Notification = (function () {
+    let message; // hold our state in module scope
+    let notificatioCallBack;
+    return {
+        useNotifcation(callBack) {
+            notificatioCallBack = callBack;
+            return [message];
+        },
+        sendNotification(msg) {
+            message = msg;
+            if(notificatioCallBack) {
+                notificatioCallBack(message);
+            }
+        }
+    };
+}());
+const useNotification = Notification.useNotifcation;
+const sendNotification = Notification.sendNotification;
+export { useNotification, sendNotification };
