@@ -2,6 +2,7 @@
 > - Trying to **automate state management** whenever it's possible.
 > - Reduce reducers with **write only when needed** aproach.
 > - Introduce **binding action parameters to UI concept**.
+> - Introduce **notification flow** (data pushed from server) 
 
 #### ['Todo list' example (last version - with async operations)](https://codesandbox.io/s/angry-mestorf-kk8q1)
 > - Add, emove, update tasks, filter by status
@@ -11,7 +12,7 @@
 > 
 > [same example with **ALL ASYNC** operation](https://codesandbox.io/s/angry-mestorf-kk8q1)
 
-#### Very simple examples: 
+#### Todo list examples: 
 - [Very simple Todo app](https://codesandbox.io/s/compassionate-butterfly-3mc7w?fontsize=14&hidenavigation=1&theme=dark)
 - [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
 - [Todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
@@ -558,6 +559,37 @@ const TodoList = () => {
 };
 
 export default TodoList;
+```
+## notifications
+We could look on notificatins like data pushed from server. For example you are working on your task list but your boss too, and when he add new task you should see it. Usually to achiefe this we are using websockets. We are not explaining how data will be pushed, but how will UI be notified in standard way.
+
+Look at the code snipet bellow:
+```javascript
+import { sendNotification } from 'micro-reducers';
+
+export const taskPushedFromServer = () => {
+    const response = {
+        name: 'New task from server'
+    };
+    let i = 1;
+    for (i = 0; i < 5; i++) {
+        setTimeout(() => {
+            sendNotification(response);
+        }, i * 2000);
+    }
+};
+```
+This was api side. So every 2 seconds we should see new task in the list. Now we can revisit our todo example, and react on this notification. 
+```javascript
+import { useNotification } from 'micro-reducers';
+...
+const TodoList = () => {
+    const [store, AddTask, CompleteTask, DeleteTask, FilterTasks, CancelFilter] = useTodoList(....),
+...
+...
+    useNotification((message) => {
+        AddTask(message.name);
+    });
 
 ```
 

@@ -12,7 +12,9 @@
 
 import { useState } from 'react';
 import { getUUID } from './utils';
+import { useNotification, sendNotification } from './notifications';
 
+export { useNotification, sendNotification };
 export type ActionResult = { type: string } | void;
 export type dispatchType = (actionResult: ActionResult) => void;
 
@@ -24,6 +26,10 @@ export type useActionType = (action: Action) => any;
 export type useStoreType = () => [any, (Action) => any];
 export type attatchToActionType = (actionName: string, callBack: (store: any, action: ActionResult) => any) => void;
 
+export type filterType = {
+    param: ActionResult;
+    filterFunction: Function;
+}
 /**
  * If obj is 'just' object, simply if it's json return true. If it's function, return false.
  * @param {any} obj json object, function, whatever
@@ -40,20 +46,20 @@ export class Store {
     /**
      * parts of store this is an dictionary but I still didn't do full refactoring
      */
-    stores: Object;
+    stores: [];
 
     /**
      * again dictionary, key is name of action, and value is function.
      * again need more refactoring.
      */
-    attachers: Object;
+    attachers: { [string]: Function };
 
     /**
      * Here we keep filters configuration. It's a dictionary.
      * @key name of array in store
      * @value filter configuration with filter function
      */
-    filters: Object;
+    filters: { [string]: filterType };
 
     constructor() {
         this.stores = {};
@@ -97,11 +103,9 @@ export class Store {
         // and member name is action.filter.name added in forFilterArray utility function.
         // here we'll refer only as arr to such store property
         const originalArray = store[actionResult._____filter.name];
-        console.log('original array', originalArray);
         // on of the filter properies, such as name, is also filterFunction
         // we need to execute filterFunction to get result and tu put this results somewhere.
         const result = actionResult._____filter.filterFunction(originalArray, actionResult);
-        console.log('result array', result);
         this.setFilteredArray(store, actionResult._____filter.name, result);
         this.filters[`${storeName}.${actionResult._____filter.name}`] = {
             param: { ...actionResult },
@@ -118,7 +122,6 @@ export class Store {
     setFilteredArray(store: any, name: string, arr: Array) {
         if (!store[`${name}WithFilter`]) {
             store[`${name}WithFilter`] = [...arr];
-            console.log('setFilteredArray', arr);
         }
         store[`${name}WithFilter`] = [...arr];
     }
@@ -132,11 +135,7 @@ export class Store {
         if (this.filters[`${storeName}.${arrayName}`]) {
             const filter = this.filters[`${storeName}.${arrayName}`];
             const result = filter.filterFunction(store[arrayName], filter.param);
-            console.log('check filter result, ', result);
-            console.log('check filter: store[arrayName]', store[arrayName]);
             this.setFilteredArray(store, arrayName, result);
-        } else {
-            console.log('storeName ', store, storeName, arrayName, `${storeName}.${arrayName}`);
         }
     }
 
@@ -247,46 +246,56 @@ export class Store {
                 };
             }
 
-            const dispatch = (actionResult: ActionResult) => {
-                store = Object.assign(store);
-                // check if result is object (json)
-                // why ? because if it's async function it will first return undefined or nul
-                // and latter will dispatch action
-                if (isObject(actionResult)) {
-                    // first check if we are dealing with array and auto commands.
-                    // latter we can apply additional operation with attachers/reducers
-                    if (actionResult.toArray || actionResult.fromArray
-                        || actionResult.updateArray || actionResult._____filter
-                        || actionResult.type === '!cancelFilter') {
-                        this.handleCollectionOperation(store, storeFn.name, actionResult);
-                    } else if (this.attachers[actionResult.type]) { // here we check attachers (or reducers)
-                    // it is important in which order attachers change state.
-                    // here is FIFO implementation.
-                        this.attachers[actionResult.type].forEach(callback => {
-                            store = callback(store, actionResult, this.stores);
-                        });
-                    } else {
-                        // if it's not array, it's not filter, there is not attachers - reducers
-                        // then just merge store.
-                        store = { ...store, ...actionResult };
-                    }
-                    this.stores[storeFn.name] = { ...store };
-                    setState(this.stores[storeFn.name]);
-                    Object.keys(actionResult).forEach(key => {
-                        delete actionResult[key];
-                    });
-                    delete [actionResult];
-                    actionResult = null;
-                }
+            const _dispatch = (actionResult: ActionResult) => {
+                this.dispatch(actionResult, store, storeFn.name, setState);
             };
-            const useAction = (action: AtionType): any => (...params: any) => {
-                params.push(dispatch);
-                return dispatch(action(...params));
+            const wrapAction = (action: AtionType): any => (...params: any) => {
+                // this is how dispatch method become parameter in async actions
+                // which we usually call action creators.
+                params.push(_dispatch);
+                return _dispatch(action(...params));
             };
-            const wrappedActions = actions ? actions.map(action => useAction(action)) : [];
+            const wrappedActions = actions ? actions.map(action => wrapAction(action)) : [];
+            // this is to support usage of this library in class components.
+            // if first parameter (customConfig) is array it means class component is using it.
+            // then we just return wrapped actions while state is handled in different way (not using react useState hook)
+            // otherwise return store and wrapped actions
             return Array.isArray(customConfig) ? [...wrappedActions] : [store, ...wrappedActions];
         };
         return useStore;
+    }
+
+    dispatch(actionResult: ActionResult, store, storeName, setState) {
+        store = Object.assign(store);
+        // check if result is object (json)
+        // why ? because if it's async function it will first return undefined or nul
+        // and latter will dispatch action
+        if (isObject(actionResult)) {
+            // first check if we are dealing with array and auto commands.
+            // latter we can apply additional operation with attachers/reducers
+            if (actionResult.toArray || actionResult.fromArray
+                || actionResult.updateArray || actionResult._____filter
+                || actionResult.type === '!cancelFilter') {
+                this.handleCollectionOperation(store, storeName, actionResult);
+            } else if (this.attachers[actionResult.type]) { // here we check attachers (or reducers)
+            // it is important in which order attachers change state.
+            // here is FIFO implementation.
+                this.attachers[actionResult.type].forEach(callback => {
+                    store = callback(store, actionResult, this.stores);
+                });
+            } else {
+                // if it's not array, it's not filter, there is not attachers - reducers
+                // then just merge store.
+                store = { ...store, ...actionResult };
+            }
+            this.stores[storeName] = { ...store };
+            setState(this.stores[storeName]);
+            Object.keys(actionResult).forEach(key => {
+                delete actionResult[key];
+            });
+            delete [actionResult];
+            actionResult = null;
+        }
     }
 }
 
@@ -434,3 +443,4 @@ export const forFilterArrayAsync = (arrayName: string, filterAction: Action, fil
     };
     return newOperation;
 };
+
