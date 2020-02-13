@@ -17,6 +17,22 @@
 - [Very simple Todo app without reducers (!!!)](https://codesandbox.io/s/zen-resonance-tjqjx)
 - [Todo example with statuses](https://codesandbox.io/s/nifty-nash-ul2jp)
 
+#### Todo example with notification
+In this example we improvise following situation:
+
+> User is working on a task list. Someone else also is working on some other task list
+> She/he can send a task to our user. When this happened User should see new
+> task in the list. 
+> 
+> So **Server push message to client**. There is no UI interaction to initiate UI rendering.
+> 
+> That's why we have **notification hook**. (We don't solve how the message arrived to the client.)
+> 
+> We are introducing model for easy notification system, in which UI is aware that something 
+> is coming from server, and may or not decide about rendering, calling another function, etc.. 
+
+[To do with notification](https://codesandbox.io/s/keen-grass-73jfm)
+
 Here you can  find more examples: https://github.com/jtomasevic/evax
 
 # Micro reducers
@@ -561,7 +577,7 @@ const TodoList = () => {
 export default TodoList;
 ```
 ## notifications
-We could look on notificatins like data pushed from server. For example you are working on your task list. Your boss decide to add some extra tasks, and when he add new task you should see it. Usually to achiefe this we are using websockets usually. We are not explaining how data will be pushed to clinent, but how will UI be notified in standard way.
+We could look on notificatins like data pushed from server. For example you are working on your task list. Your boss decide to add some extra tasks, and when he add new task you should see it. Usually to achiefe this we are using websockets usually. We are not explaining how data will be pushed to client, but how will UI be notified in standard way.
 
 Look at the code snipet bellow:
 ```javascript
