@@ -92,7 +92,7 @@ export class Store {
      * This method check set filter on array (member of store)
      * @param {any} store part of global store
      * @param {string} storeName name of store
-     * @param {ActionResult} actionResult result
+     * @param {ActionResult} actionResult result of action. 
      */
     setFilter(store: any, storeName, actionResult: ActionResult) {
         // if there is a property filter
@@ -110,6 +110,20 @@ export class Store {
             filterFunction: actionResult._____filter.filterFunction
         };
     }
+    /**
+     * Check if filter exist. If exist then get filter configuration for this array,
+     * call filter function and set state.
+     * @param {any} store store that will be updated if filer exist
+     * @param {string} atoreName  name of store
+     * @param {string} arrayName name of array in store
+     */
+    checkFilter(store: any, storeName: string, arrayName: string) {
+        if (this.filters[`${storeName}.${arrayName}`]) {
+            const filter = this.filters[`${storeName}.${arrayName}`];
+            const result = filter.filterFunction(store[arrayName], filter.param);
+            this.setFilteredArray(store, arrayName, result);
+        }
+    }
 
     /**
      * If not exist, create new array with name by convention:
@@ -125,19 +139,6 @@ export class Store {
     }
 
     /**
-     * check if filter exist. If exist then get filter for this array,
-     * call filter function and set state.
-     * @param {string} arrayName name of array in store
-     */
-    checkFilter(store: any, storeName: string, arrayName: string) {
-        if (this.filters[`${storeName}.${arrayName}`]) {
-            const filter = this.filters[`${storeName}.${arrayName}`];
-            const result = filter.filterFunction(store[arrayName], filter.param);
-            this.setFilteredArray(store, arrayName, result);
-        }
-    }
-
-    /**
      * Remove filter, deleting filter array
      * @param {string} arrayName name of array in store
      */
@@ -147,7 +148,10 @@ export class Store {
     }
 
     /**
-     * Add new memeber to collection which is part of store, for example tasks.
+     * Add new memeber to collection which is part of store.
+     * Examples: tasks, books...
+     * @param {store} store one of may stores object, that has collection where we want to put new element
+     * @actionResult {Action}
      */
     addToCollection(store, actionResult) {
         actionResult.toArray.obj._key = getUUID();
@@ -170,7 +174,11 @@ export class Store {
         }
         store[actionResult.fromArray.name] = arr;
     }
-
+    /**
+     * Update memeber of collection which is property in store.
+     * @param {any} store
+     * @param {actionResult} result of action. 
+     */
     updateCollectionMember(store: any, actionResult: ActionResult) {
         const toUpdate = actionResult.updateArray.obj;
         const arr = store[actionResult.updateArray.name];
@@ -181,7 +189,18 @@ export class Store {
             }
         }
     }
-
+    /**
+     * This method handle collection operation. Check for especial tagas and depens on tag value
+     * performs one of action
+     * - add item to array
+     * - remove from array
+     * - updat member of array
+     * - set filter on array
+     * - cance filters
+     * @param {any} store part of global store
+     * @param {string} storeName name of store
+     * @param {ActioResult} actionResult result of action
+     */
     handleCollectionOperation(store, storeName, actionResult) {
         if (actionResult.toArray) {
             this.addToCollection(store, actionResult);
@@ -243,16 +262,22 @@ export class Store {
                     cmpSetState.call(component, classState);
                 };
             }
-
+            // this method will be used inside wraped action so that 
+            // developer don't need to call dispatch, but only action as function
+            // exception is in async function when developer will explicitly call dispatch(action())
             const _dispatch = (actionResult: ActionResult) => {
                 this.dispatch(actionResult, store, storeFn.name, setState);
             };
+            // this will wrap action into another one, 
+            // just to add _dispatch method as last one.
+            // we are adding this params (method dispatch) to be used by async function
             const wrapAction = (action: AtionType): any => (...params: any) => {
                 // this is how dispatch method become parameter in async actions
                 // which we usually call action creators.
                 params.push(_dispatch);
                 return _dispatch(action(...params));
             };
+            // wrap all function passed as params to useStore hook
             const wrappedActions = actions ? actions.map(action => wrapAction(action)) : [];
             // this is to support usage of this library in class components.
             // if first parameter (customConfig) is array it means class component is using it.
@@ -263,8 +288,20 @@ export class Store {
         return useStore;
     }
 
+    /**
+     * Dispatch will first check what to do with action result.
+     * These are oprtion:
+     * - (auto) array operation
+     * - call dispetcher to set new state
+     * - merge state with current state
+     * - do nothing, because action result is not an object so probably we are in the middle of async method execution
+     * @param {ActionResult} actionResult result of an action
+     * @param {any} store part of global store, for exampe tasks
+     * @param {string} storeName name of store
+     * @param {Function} setState "hook" function to set state of UI component.
+     */
     dispatch(actionResult: ActionResult, store, storeName, setState) {
-        store = Object.assign(store);
+        // store = Object.assign(store);
         // check if result is object (json)
         // why ? because if it's async function it will first return undefined or nul
         // and latter will dispatch action
@@ -322,10 +359,40 @@ export const createStore = (...stores: Function) => {
     return registretedStores;
 };
 
+/**
+ * Define type for binding action props. Acctually props are attributes of action
+ * First member is id of control.
+ * Second is function thatis returning value from html element.
+ */
 type bindingProp = [
     string,
     (element: HTMLElement) => any
 ];
+
+/**
+ * This means: let my param:operation action become push operation under array
+ * which is part of store with name param:arrayName
+ * Second attribute is function that transforme action parameters into object.
+ * Last param is operation type which can be:
+ * - toArray
+ * - fromArray
+ * - updateArray
+ */
+const wrapToAsync = (arrayName: string, operation: Action, paramsToObj: Function, attachParamName: string) => {
+    const newOperation = (...params: any) => {
+        const dispatch = params[params.length - 1];
+        const arrayMember = paramsToObj(...params);
+        const newDispatch = (actionResult: ActionResult) => {
+            actionResult[attachParamName] = { name: arrayName, obj: arrayMember };
+            dispatch(actionResult);
+        };
+        params.splice(params.length - 1, 1);
+        params.push(newDispatch);
+        operation(...params);
+    };
+    return newOperation;
+};
+
 
 /**
  * Bind UI elements to action. It can be simple bindings providing just html element id or more complicated
@@ -360,30 +427,6 @@ export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function
         return result;
     };
     return newAdd;
-};
-
-/**
- * This means: let my param:operation action become push operation under array
- * which is part of store with name param:arrayName
- * Second attribute is function that transforme action parameters into object.
- * Last param is operation type which can be:
- * - toArray
- * - fromArray
- * - updateArray
- */
-const wrapToAsync = (arrayName: string, operation: Action, paramsToObj: Function, attachParamName: string) => {
-    const newOperation = (...params: any) => {
-        const dispatch = params[params.length - 1];
-        const arrayMember = paramsToObj(...params);
-        const newDispatch = (actionResult: ActionResult) => {
-            actionResult[attachParamName] = { name: arrayName, obj: arrayMember };
-            dispatch(actionResult);
-        };
-        params.splice(params.length - 1, 1);
-        params.push(newDispatch);
-        operation(...params);
-    };
-    return newOperation;
 };
 
 export const forArrPushAsync = (arrayName: string, add: Action, paramsToObj: Function) => wrapToAsync(arrayName, add, paramsToObj, 'toArray');
@@ -442,6 +485,10 @@ export const forFilterArrayAsync = (arrayName: string, filterAction: Action, fil
     return newOperation;
 };
 
+/**
+ * This is still in experimental phase, so if you face any troubles,
+ * please report bug, and we'll do our best to fix it. 
+ */
 const Notification = (function () {
     let message; // hold our state in module scope
     let notificatioCallBack;
