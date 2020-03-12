@@ -492,6 +492,12 @@ export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj
  */
 export const forUpdateArrayAsync = (arrayName: string, updateObj: Action, paramsToObj: Function) => wrapToAsync(arrayName, updateObj, paramsToObj, 'updateArray');
 
+/**
+ * Filter array in declarative way. See fields description for explanation.
+ * @param {string} arrayName name of array to be filter out
+ * @param {Action} filterAction Action to be executed and use return params as input for filter function
+ * @param {Function} filterFunction Accept result from Action and run filter function which return filtered array
+ */
 export const forFilterArray = (arrayName: string, filterAction: Action, filterFunction: Function) => {
     const newFilter = (...params: any) => {
         // execute original action, get json result
@@ -503,6 +509,12 @@ export const forFilterArray = (arrayName: string, filterAction: Action, filterFu
     return newFilter;
 };
 
+/**
+ * Same as for forFilterArray but with async action
+ * @param {string} arrayName name of array to be filter out
+ * @param {Action} filterAction Action to be executed and use return params as input for filter function
+ * @param {Function} filterFunction Accept result from Action and run filter function which return filtered array
+ */
 export const forFilterArrayAsync = (arrayName: string, filterAction: Action, filterFunction: Function) => {
     const newOperation = (...params: any) => {
         const dispatch = params[params.length - 1];
