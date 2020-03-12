@@ -467,6 +467,12 @@ export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Fun
  */
 export const forArrRemoveAsync = (arrayName: string, remove: Action, paramsToObj: Function) => wrapToAsync(arrayName, remove, paramsToObj, 'fromArray');
 
+/**
+ * This function describe how memeber of array will be updated. See field description for details.
+ * @param {string} arrayName name of array to be auto-arranged for update operation
+ * @param {Action} updateObj Action to be called and then use return result for method paramsToObj function
+ * @param {Function} paramsToObj Function to be called to update object with return value.
+ */
 export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
     const newUpdate = (...params: any) => {
         const result = updateObj(...params);
@@ -478,7 +484,12 @@ export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj
     };
     return newUpdate;
 };
-
+/**
+ * Async version of forUpdateArray
+ * @param {string} arrayName name of array to be auto-arranged for update operation
+ * @param {Action} updateObj Action to be called and then use return result for method paramsToObj function
+ * @param {Function} paramsToObj Function to be called to update object with return value.
+ */
 export const forUpdateArrayAsync = (arrayName: string, updateObj: Action, paramsToObj: Function) => wrapToAsync(arrayName, updateObj, paramsToObj, 'updateArray');
 
 export const forFilterArray = (arrayName: string, filterAction: Action, filterFunction: Function) => {
