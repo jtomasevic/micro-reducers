@@ -419,6 +419,12 @@ export const bindActionProps = (action: Action, ...bindings: bindingProp) => () 
     action(...params);
 };
 
+/**
+ * We are using this to make adding in array (half) declarativly. See fields description for more details 
+ * @param {string} arrayName name of array to be auto-arranged
+ * @param {Action} add add action, when execute paramsToObj use result as parameters.
+ * @param {Function} paramsToObj use action result as params and retun new array memeber
+ */
 export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function) => {
     const newAdd = (...params: any) => {
         const result = add(...params);
@@ -428,9 +434,20 @@ export const forArrPush = (arrayName: string, add: Action, paramsToObj: Function
     };
     return newAdd;
 };
-
+/**
+ * Same as forArrPush but for async adding into array
+ * @param {string} arrayName name of array to be auto-arranged
+ * @param {Action} add add action, when execute paramsToObj use result as parameters.
+ * @param {Function} paramsToObj use action result as params and retun new array memeber
+ */
 export const forArrPushAsync = (arrayName: string, add: Action, paramsToObj: Function) => wrapToAsync(arrayName, add, paramsToObj, 'toArray');
 
+/**
+ * We are using this to make removeing fromarray (half) declarativly. See fields description for more details 
+ * @param {string} arrayName name of array to be auto-arranged
+ * @param {*} remove remove action, when execute paramsToObj use result as parameters.
+ * @param {*} paramsToObj use action result as params and retun array memeber which will be removed
+ */
 export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Function) => {
     const newRemove = (...params: any) => {
         const result = remove(...params);
@@ -442,7 +459,12 @@ export const forArrRemove = (arrayName: string, remove: Action, paramsToObj: Fun
     };
     return newRemove;
 };
-
+/**
+ * Same as forArrRemove but for async adding into array
+ * @param {string} arrayName name of array to be auto-arranged
+ * @param {*} remove remove action, when execute paramsToObj use result as parameters.
+ * @param {*} paramsToObj use action result as params and retun array memeber which will be removed
+ */
 export const forArrRemoveAsync = (arrayName: string, remove: Action, paramsToObj: Function) => wrapToAsync(arrayName, remove, paramsToObj, 'fromArray');
 
 export const forUpdateArray = (arrayName: string, updateObj: Action, paramsToObj: Function) => {
